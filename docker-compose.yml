@@ -1,42 +1,35 @@
-# Define the name for the stack
 name: backend-api-stack
-
 services:
-  # Backend API service configuration
-  backend-api:
-    build: .  # Build the image from the current directory
-    container_name: backend-api  # Name of the container
-    environment:
-      - MONGO_URI=mongodb://root:pass-123@mongodb:27017/book-store?authSource=admin  # MongoDB connection URI
-      - PORT=3001  # Port to run the backend API
-    ports:
-      - '3001:3001'  # Map the container's port 3001 to the host machine's port 3001
+  backend-service:
+    image: bouthainabakouch/backend-api
     depends_on:
-      - mongodb  # Ensure MongoDB starts before the backend API
-    networks:
-      - backend-api-network  # Connect the service to the defined network
-
-  # MongoDB service configuration
-  mongodb:
-    container_name: mongodb  # Name of the container
-    image: mongo:latest  # Use the latest MongoDB image from Docker Hub
-    restart: always  # Automatically restart MongoDB container if it stops
+      - database
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: backend-api-container
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=root  # Root username for MongoDB
-      - MONGO_INITDB_ROOT_PASSWORD=pass-123  # Root password for MongoDB
-      - MONGO_INITDB_DATABASE=book-store  # Initial database to create
+      MONGO_URI: mongodb://root:example@database:27017/book-store?authSource=admin
+      PORT: 3002
     ports:
-      - "27017:27017"  # Map the container's MongoDB port to the host's port 27017
-    volumes:
-      - mongodb-volume:/data/db  # Persist MongoDB data using a Docker volume
-    networks:
-      - backend-api-network  # Connect the service to the defined network
+      - "3007:3002"
 
-# Define custom network for the services to communicate with each other
-networks:
-  backend-api-network:
-    driver: bridge  # Use the default bridge driver for the network
+  database:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
 
-# Define named volume to persist MongoDB data
-volumes:
-  mongodb-volume:
+  mongo-express:
+    image: mongo-express
+    depends_on:
+      - database
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: example
+      ME_CONFIG_MONGODB_URL: mongodb://root:example@database:27017/
+      ME_CONFIG_BASICAUTH: false

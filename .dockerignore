@@ -10,7 +10,7 @@ package.json.bak
 .DS_Store
 
 # config file
-.env
+#.env
 
 # debug
 npm-debug.log*

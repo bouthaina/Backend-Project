@@ -1,0 +1,22 @@
+name: Pipeline backend
+
+on:
+  push:
+    branches:
+      main
+
+jobs:
+  test:
+      runs-on: ubuntu-latest
+      steps:
+        -name: checkout
+        uses: actions/checkout@v4
+      
+        -name: install dependencies
+        run: npm 
+        
+        -name: init test
+        run: npm run test 
+
+
+
