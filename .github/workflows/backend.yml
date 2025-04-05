@@ -36,7 +36,12 @@ jobs:
 
       - name: push image docker
         run: docker push bouthainabakouch/backend-api:latest
+        
+      - name: tag image With version number
+        run: docker tag bouthainabakouch/backend-api bouthainabakouch/backend-api:${{ github.run_number }}
 
+      - name: push image with version number
+        run: docker push bouthainabakouch/backend-api:${{ github.run_number }}
 
 
 
