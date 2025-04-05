@@ -34,7 +34,8 @@ jobs:
             username: ${{ vars.DOCKERHUB_USERNAME }}
             password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-
+      - name: push image docker
+        run: docker push bouthainabakouch/backend-api:latest
 
 
 
