@@ -51,7 +51,7 @@ jobs:
             channel: '#devops'
             status: ${{ job.status }}
             steps: ${{ toJson(steps) }}    
-            message: "🚨 Pipeline failed for ${{ github.repository }} at ${{ github.ref }}. Please check the logs!"
+            message:  "🚨 *Pipeline failed* for *${{ github.repository }}* at *${{ github.ref }}*.\nPlease check the logs: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
   build-and-push:
     runs-on: ubuntu-latest
