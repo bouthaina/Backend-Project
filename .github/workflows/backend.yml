@@ -55,10 +55,18 @@ jobs:
                 Branch: ${{ github.ref }}
                 Commit: ${{ github.sha }}
                 Triggered by: ${{ github.actor }}
-                ${{ steps.test.outcome == 'success' && '✔️ Test Passed!' || steps.test.outcome == 'failure' && '❌ Test Failed!' }}
-                ${{ steps.check-tests.outcome == 'failure' && format('Test report available: https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) || '' }}
+                ${{ steps.check-tests.outcome == 'failure' && '❌ Tests failed!' || '✔️ Tests passed!' }}
 
-
+                ${{ steps.check-tests.outcome == 'failure' && format(
+                    '*📦 Repository:* `{0}`\n*🔀 Branche:* `{1}`\n*🔢 Commit:* `{2}`\n*💬 Message du commit:* `{3}`\n*👤 Auteur:* `{4}`\n*🕒 Date:* `{5}`\n*🔗 Lien vers le commit:* https://github.com/{0}/commit/{2}\n*🔗 Actions Run:* https://github.com/{0}/actions/runs/{6}',
+                    github.repository,
+                    github.ref,
+                    github.sha,
+                    github.event.head_commit.message,
+                    github.actor,
+                    github.event.head_commit.timestamp,
+                    github.run_id
+                ) || '' }}
 
                 
   build-and-push:
