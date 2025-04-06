@@ -51,7 +51,7 @@ jobs:
             status: ${{ job.status }}
             steps: ${{ toJson(steps) }}    
             message: |
-                *Test Phase Results* (${{ job.status }})
+                *Test Results* (${{ job.status }})
                 Branch: ${{ github.ref }}
                 Commit: ${{ github.sha }}
                 Triggered by: ${{ github.actor }}
