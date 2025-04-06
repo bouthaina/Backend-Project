@@ -52,8 +52,6 @@ jobs:
             steps: ${{ toJson(steps) }}    
             message: |
                 *Test Results* (${{ job.status }})
-                Branch: ${{ github.ref }}
-                Commit: ${{ github.sha }}
                 Triggered by: ${{ github.actor }}
                 ${{ steps.check-tests.outcome == 'failure' && '❌ Tests failed!' || '✔️ Tests passed!' }}
 

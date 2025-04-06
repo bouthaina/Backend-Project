@@ -34,7 +34,7 @@ connectDB();
 
 // Routes
 app.get("/", (req, res) => {
-  res.send("Server is running!");
+  res.send("Server is running!!!");
 });
 
 // Health check endpoint
