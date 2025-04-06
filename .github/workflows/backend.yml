@@ -7,7 +7,9 @@ on:
 env:
       IMAGE_NAME: bouthainabakouch/backend-api
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
 jobs:
+
   test:
     runs-on: ubuntu-latest  
     steps:
@@ -42,12 +44,14 @@ jobs:
               process.exit(1);
             }
             "
-            
+
       - uses: act10ns/slack@v2
-        with:
-              status: ${{ job.status }}
-              steps: ${{ toJson(steps) }}    
         if: always()
+        with:
+            channel: '#devops'
+            status: ${{ job.status }}
+            steps: ${{ toJson(steps) }}    
+            message: "🚨 Pipeline failed for ${{ github.repository }} at ${{ github.ref }}. Please check the logs!"
 
   build-and-push:
     runs-on: ubuntu-latest
