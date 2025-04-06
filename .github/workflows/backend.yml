@@ -57,16 +57,8 @@ jobs:
                 Triggered by: ${{ github.actor }}
                 ${{ steps.check-tests.outcome == 'failure' && '❌ Tests failed!' || '✔️ Tests passed!' }}
 
-                ${{ steps.check-tests.outcome == 'failure' && format(
-                  '*📦 Repository:* `{0}`\n*🔀 Branch:* `{1}`\n*🧾 Commit:* `{2}`\n*💬 Commit message:* `{3}`\n*👤 Author:* `{4}`\n*🕒 Date:* `{5}`\n*🔗 Commit Link:* https://github.com/{0}/commit/{2}\n*🧪 Actions Run:* https://github.com/{0}/actions/runs/{6}',
-                  github.repository,
-                  github.ref,
-                  github.sha,
-                  github.event.head_commit.message,
-                  github.actor,
-                  github.event.head_commit.timestamp,
-                  github.run_id
-                ) || '' }}
+                ${{ steps.check-tests.outcome == 'failure' && format('Test report available: https://github.com/{0}/actions/runs/{1}', github.repository, github.run_id) || '' }}
+
 
 
                 
