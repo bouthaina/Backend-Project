@@ -63,6 +63,7 @@ jobs:
                 *🕒 Date:* `${{ github.event.head_commit.timestamp }}`
                 *🔗 Commit Link:* https://github.com/${{ github.repository }}/commit/${{ github.sha }}
                 *🔗 Actions Run:* https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+                
 
   build-and-push:
 
@@ -112,6 +113,45 @@ jobs:
             ${{ steps.build.outputs.status == 'failure' && '❌ Build failed!' || '✔️ Build succeeded!' }}
             ${{ steps.build.outputs.status == 'failure' && 'Check the workflow run for build errors.' || 'Image successfully pushed to Docker Hub.' }}
 
+
+  truvy-scan:
+    runs-on: ubuntu-20.04
+    needs: build-and-push
+    steps:
+  
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          
+      - name: Pull Docker image
+        run: docker pull ${{ env.IMAGE_NAME }}:${{ env.BUILD_NUMBER }}
+
+      - name: Scan Docker image with Trivy
+        id: trivy-scan
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: '${{ env.IMAGE_NAME }}:${{ env.BUILD_NUMBER }}'
+          format: 'table'
+          ignore-unfixed: true
+          exit-code: '1'
+          severity: 'CRITICAL'
+
+      - name: Notify Scan Results
+        if: always()
+        uses: act10ns/slack@v2
+        with:
+          status: ${{ steps.trivy-scan.outcome == 'failure' && 'failure' || 'success' }}
+          message: |
+              *Trivy Scan Results* (${{ job.status }})
+              Image: ${{ env.IMAGE_NAME }}:${{ env.BUILD_NUMBER }}
+              ${{ steps.trivy-scan.outcome == 'failure' && ':x: Critical vulnerabilities found!' || ':white_check_mark: No critical vulnerabilities found!' }}
+
+
+
+        
+  
   deployement:
 
     runs-on: ubuntu-latest
