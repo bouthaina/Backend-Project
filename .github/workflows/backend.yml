@@ -53,7 +53,7 @@ jobs:
             message: |
                 *Test Results* (${{ job.status }})
                 Triggered by: ${{ github.actor }}
-                ${{ steps.check-tests.outcome == 'failure' && '❌ Tests failed!' || '✔️ Tests passed!' }}
+                ${{ steps.check-tests.outcome == 'failure' && '❌ Tests failed!' || ':white_check_mark: Tests passed!' }}
 
                 *📦 Repository:* `${{ github.repository }}`
                 *🔀 Branch:* `${{ github.ref }}`
@@ -110,7 +110,7 @@ jobs:
           message: |
             *Docker Build Results* (${{ job.status }})
             Image: ${{ env.IMAGE_NAME }}:${{ env.BUILD_NUMBER }}
-            ${{ steps.build.outputs.status == 'failure' && '❌ Build failed!' || '✔️ Build succeeded!' }}
+            ${{ steps.build.outputs.status == 'failure' && '❌ Build failed!' || ':white_check_mark: Build succeeded!' }}
             ${{ steps.build.outputs.status == 'failure' && 'Check the workflow run for build errors.' || 'Image successfully pushed to Docker Hub.' }}
 
 
@@ -188,7 +188,7 @@ jobs:
           message: |
                 *Deployment Results* (${{ job.status }})
                 Version: ${{ env.BUILD_NUMBER }}
-                ${{ steps.deploy.outcome == 'failure' && '❌ Deployment failed!' || '✔️ Deployment succeeded!' }}
+                ${{ steps.deploy.outcome == 'failure' && '❌ Deployment failed!' || ':white_check_mark: Deployment succeeded!' }}
                 ${{ steps.deploy.outcome == 'failure' && 'Check the workflow run for deployment errors.' || 'Application successfully deployed!' }}
                     
                 
