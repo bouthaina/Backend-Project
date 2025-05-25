@@ -1,20 +1,24 @@
 pipeline {
+
     agent any
 
     environment {
         DOCKERHUB_CREDENTIALS_ID = 'DOCKERHUB_CREDS'
         DOCKERHUB_USERNAME = 'bouthainabakouch'
         BACKEND_IMAGE_NAME = "${env.DOCKERHUB_USERNAME}/backendapi-prod"
+        SLACK_WEBHOOK_URL = credentials('SLACK_WEBHOOK_URL')
+
     }
 
     stages {
+
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
 
-        stage('Test-Backend') {
+        stage('Test-Bakend') {
             steps {
                 script {
                     bat 'npm install'
@@ -23,22 +27,6 @@ pipeline {
                         mkdir test-report
                         npm run test -- --json --outputFile=test-report\\test-report.json
                         """
-                }
-            }
-            post {
-                success {
-                    slackSend(
-                        color: 'good',
-                        message: "✅ Tests Backend: Exécutés avec succès",
-                        tokenCredentialId: 'SLACK_WEBHOOK_URL'
-                    )
-                }
-                failure {
-                    slackSend(
-                        color: 'danger',
-                        message: "❌ Tests Backend: Échec des tests",
-                        tokenCredentialId: 'SLACK_WEBHOOK_URL'
-                    )
                 }
             }
         }
@@ -51,48 +39,46 @@ pipeline {
         
         stage('Push Docker Image') {
             steps {
-                script {
-                    withCredentials([usernamePassword(credentialsId: env.DOCKERHUB_CREDENTIALS_ID, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                        bat """
-                            echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
-                            docker push ${env.BACKEND_IMAGE_NAME}:latest
-                        """
+                echo 'Push des images vers Docker Hub...'
+                withCredentials([usernamePassword(
+                    credentialsId: env.DOCKERHUB_CREDENTIALS_ID,
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    bat 'echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin'
+                    bat "docker push ${env.BACKEND_IMAGE_NAME}:latest"
+                }
+
+            }
+            post {
+                always {
+                    bat 'docker logout'
+                }
+                success {
+                    script {
+                        withCredentials([string(credentialsId: 'SLACK_WEBHOOK_URL', variable: 'SLACK_WEBHOOK')]) {
+                            writeFile file: 'slack-docker-success.json', text: """
+                            {
+                                "text": ":whale: *Image successfully pushed to Docker Hub.*\n<${env.BUILD_URL}|See build>"
+                            }
+                            """
+                            bat "curl -X POST -H \"Content-type: application/json\" --data @slack-docker-success.json %SLACK_WEBHOOK%"
+                        }
+                    }
+                }
+                failure {
+                    script {
+                        withCredentials([string(credentialsId: 'SLACK_WEBHOOK_URL', variable: 'SLACK_WEBHOOK')]) {
+                            writeFile file: 'slack-docker-failure.json', text: """
+                            {
+                                "text": ":x: *Error to push image to Docker Hub !*\n<${env.BUILD_URL}|See build>"
+                            }
+                            """
+                            bat "curl -X POST -H \"Content-type: application/json\" --data @slack-docker-failure.json %SLACK_WEBHOOK%"
+                        }
                     }
                 }
             }
-            post {
-                success {
-                    slackSend(
-                        color: 'good',
-                        message: "✅ Docker: Image poussée avec succès sur Docker Hub",
-                        tokenCredentialId: 'SLACK_WEBHOOK_URL'
-                    )
-                }
-                failure {
-                    slackSend(
-                        color: 'danger',
-                        message: "❌ Docker: Échec du push de l'image sur Docker Hub",
-                        tokenCredentialId: 'SLACK_WEBHOOK_URL'
-                    )
-                }
-            }
-        }
-    }
-
-    post {
-        failure {
-            slackSend(
-                color: 'danger',
-                message: "❌ Pipeline FAILED: ${currentBuild.fullDisplayName}",
-                tokenCredentialId: 'SLACK_WEBHOOK_URL'
-            )
-        }
-        success {
-            slackSend(
-                color: 'good',
-                message: "✅ Pipeline SUCCESS: ${currentBuild.fullDisplayName}",
-                tokenCredentialId: 'SLACK_WEBHOOK_URL'
-            )
         }
     }
 }
