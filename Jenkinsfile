@@ -30,14 +30,14 @@ pipeline {
                     slackSend(
                         color: 'good',
                         message: "✅ Tests Backend: Exécutés avec succès",
-                        credentialsId: 'SLACK_WEBHOOK_URL'
+                        tokenCredentialId: 'SLACK_WEBHOOK_URL'
                     )
                 }
                 failure {
                     slackSend(
                         color: 'danger',
                         message: "❌ Tests Backend: Échec des tests",
-                        credentialsId: 'SLACK_WEBHOOK_URL'
+                        tokenCredentialId: 'SLACK_WEBHOOK_URL'
                     )
                 }
             }
@@ -65,14 +65,14 @@ pipeline {
                     slackSend(
                         color: 'good',
                         message: "✅ Docker: Image poussée avec succès sur Docker Hub",
-                        credentialsId: 'SLACK_WEBHOOK_URL'
+                        tokenCredentialId: 'SLACK_WEBHOOK_URL'
                     )
                 }
                 failure {
                     slackSend(
                         color: 'danger',
                         message: "❌ Docker: Échec du push de l'image sur Docker Hub",
-                        credentialsId: 'SLACK_WEBHOOK_URL'
+                        tokenCredentialId: 'SLACK_WEBHOOK_URL'
                     )
                 }
             }
@@ -84,14 +84,14 @@ pipeline {
             slackSend(
                 color: 'danger',
                 message: "❌ Pipeline FAILED: ${currentBuild.fullDisplayName}",
-                credentialsId: 'SLACK_WEBHOOK_URL'
+                tokenCredentialId: 'SLACK_WEBHOOK_URL'
             )
         }
         success {
             slackSend(
                 color: 'good',
                 message: "✅ Pipeline SUCCESS: ${currentBuild.fullDisplayName}",
-                credentialsId: 'SLACK_WEBHOOK_URL'
+                tokenCredentialId: 'SLACK_WEBHOOK_URL'
             )
         }
     }
