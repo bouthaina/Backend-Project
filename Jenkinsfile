@@ -5,7 +5,6 @@ pipeline {
         DOCKERHUB_CREDENTIALS_ID = 'DOCKERHUB_CREDS'
         DOCKERHUB_USERNAME = 'bouthainabakouch'
         BACKEND_IMAGE_NAME = "${env.DOCKERHUB_USERNAME}/backendapi-prod"
-        SLACK_WEBHOOK_URL = credentials('SLACK_WEBHOOK_URL')
     }
 
     stages {
@@ -31,14 +30,14 @@ pipeline {
                     slackSend(
                         color: 'good',
                         message: "✅ Tests Backend: Exécutés avec succès",
-                        webhookUrl: "${env.SLACK_WEBHOOK_URL}"
+                        credentialsId: 'SLACK_WEBHOOK_URL'
                     )
                 }
                 failure {
                     slackSend(
                         color: 'danger',
                         message: "❌ Tests Backend: Échec des tests",
-                        webhookUrl: "${env.SLACK_WEBHOOK_URL}"
+                        credentialsId: 'SLACK_WEBHOOK_URL'
                     )
                 }
             }
@@ -66,14 +65,14 @@ pipeline {
                     slackSend(
                         color: 'good',
                         message: "✅ Docker: Image poussée avec succès sur Docker Hub",
-                        webhookUrl: "${env.SLACK_WEBHOOK_URL}"
+                        credentialsId: 'SLACK_WEBHOOK_URL'
                     )
                 }
                 failure {
                     slackSend(
                         color: 'danger',
                         message: "❌ Docker: Échec du push de l'image sur Docker Hub",
-                        webhookUrl: "${env.SLACK_WEBHOOK_URL}"
+                        credentialsId: 'SLACK_WEBHOOK_URL'
                     )
                 }
             }
@@ -85,14 +84,14 @@ pipeline {
             slackSend(
                 color: 'danger',
                 message: "❌ Pipeline FAILED: ${currentBuild.fullDisplayName}",
-                webhookUrl: "${env.SLACK_WEBHOOK_URL}"
+                credentialsId: 'SLACK_WEBHOOK_URL'
             )
         }
         success {
             slackSend(
                 color: 'good',
                 message: "✅ Pipeline SUCCESS: ${currentBuild.fullDisplayName}",
-                webhookUrl: "${env.SLACK_WEBHOOK_URL}"
+                credentialsId: 'SLACK_WEBHOOK_URL'
             )
         }
     }
