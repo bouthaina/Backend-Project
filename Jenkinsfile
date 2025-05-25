@@ -45,20 +45,16 @@ pipeline {
                     } catch (Exception e) {
                         slackSend color: 'danger', message: "❌ Résultats des Tests : Échec des tests."
                         throw e
+                    }
                 }
             }
+
+
+
         }
-
-
-
-
-
-
-
-
     }
-}
 
+}
 
 
 
