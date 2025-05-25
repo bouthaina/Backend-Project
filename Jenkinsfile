@@ -47,9 +47,12 @@ pipeline {
                                 docker push ${env.BACKEND_IMAGE_NAME}:latest
                             """
                         }
-                        slackSend color: 'good', message: "✅ Docker : Image successfully pushed to Docker Hub."
+                        echo "Push Docker image succeeded, sending Slack notification..."
+                        slackSend color: 'good', message: "✅ Docker : Image successfully pushed to Docker Hub.", webhookUrl: env.SLACK_WEBHOOK_URL 
                     } catch (Exception e) {
-                        slackSend color: 'danger', message: "❌ Docker : Error to push image to Docker Hub "
+
+                        echo "Push Docker image failed, sending Slack notification..."
+                        slackSend color: 'danger', message: "❌ Docker : Error to push image to Docker Hub", webhookUrl: env.SLACK_WEBHOOK_URL
                         throw e
                     }
                 }
