@@ -31,33 +31,35 @@ pipeline {
             }
         }
 
-        stage('Check Test Results') {
+        stage('Build Docker Images') {
+            steps {
+                bat "docker build -t ${env.BACKEND_IMAGE_NAME}:latest ."
+            }
+        }
+        
+        stage('Push Docker Image') {
             steps {
                 script {
                     try {
-                        def report = readJSON file: 'test-report/test-report.json'
-                        if (report.success == false || report.numFailedTests > 0) {
-                            error("Tests failed.")
+                        withCredentials([usernamePassword(credentialsId: env.DOCKERHUB_CREDENTIALS_ID, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                            bat """
+                                echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
+                                docker push ${env.BACKEND_IMAGE_NAME}:latest
+                            """
                         }
-
-                        archiveArtifacts artifacts: 'test-report/test-report.json', fingerprint: true
-                        slackSend color: 'good', message: "✅ Résultats des Tests : Succès ! Tous les tests sont passés."
+                        slackSend color: 'good', message: "✅ Docker : Image successfully pushed to Docker Hub."
                     } catch (Exception e) {
-                        slackSend color: 'danger', message: "❌ Résultats des Tests : Échec des tests."
+                        slackSend color: 'danger', message: "❌ Docker : Error to push image to Docker Hub "
                         throw e
                     }
                 }
             }
-
-
-
         }
-    }
 
 }
 
 
+        
+}
 
-
-
-
+        
